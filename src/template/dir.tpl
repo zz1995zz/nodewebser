@@ -13,7 +13,7 @@
 <body>
 	<!-- 服务端只支持标准语法！！！ -->
 	{{each files}}
-    	<a href="{{dir+'/'+$value}}">{{$value}}</a>
+    	<a href="{{dir+'/'+$value.file}}">【{{$value.icon}}】{{$value.file}}</a>
     {{/each}}
 </body>
 </html>

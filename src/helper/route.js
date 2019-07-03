@@ -5,6 +5,7 @@ const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
 const artTemplate = require('art-template');//模板引擎
 const conf = require('../config/defaultConfig');//参数配置文件
+const mime = require('./mime');
 
 // 编译模板  注意：服务端只支持标准语法！！！
 const tplPath = path.join(__dirname,'../template/dir.tpl');//模板路径
@@ -17,7 +18,8 @@ module.exports= async function(req,res,filePath){
 		const stats = await stat(filePath);
         if(stats.isFile()){
         	res.statusCode = 200;
-        	res.setHeader('Content-Type', 'text/plain');
+        	const mimeType = mime(filePath);
+        	res.setHeader('Content-Type', mimeType);
     		fs.createReadStream(filePath).pipe(res);// stream数据流读取数据，不用readFile
     	}else if(stats.isDirectory()){
     		const files = await readdir(filePath);
@@ -27,13 +29,18 @@ module.exports= async function(req,res,filePath){
     		const data = {
     			title:path.basename(filePath),
     			dir:dir ? `/${dir}` : '',
-    			files
+    			files: files.map((file) => {
+    				return {
+    					file,
+    					icon:mime(file)
+    				}
+    			})
     		};
     		res.end(render(data));//渲染模板
     	}
     }catch(ex){
 		res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');// 响应头中设置文本类型
-        res.end(`${filePath} is not a file or directory`);
+        res.end(`${filePath} is not a file or directory n ${ex.toString()}`);
 	}
 }
