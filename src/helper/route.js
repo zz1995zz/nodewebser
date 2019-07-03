@@ -1,7 +1,15 @@
 const fs = require('fs');
+const path = require('path');
 const promisify = require('util').promisify;//promise异步
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
+const artTemplate = require('art-template');//模板引擎
+const conf = require('../config/defaultConfig');//参数配置文件
+
+// 编译模板  注意：服务端只支持标准语法！！！
+const tplPath = path.join(__dirname,'../template/dir.tpl');//模板路径
+const source = fs.readFileSync(tplPath);//用同步是因为只有模板读取完了才可能进行下面的操作
+const render = artTemplate.compile(source.toString());//编译模板返回一个渲染函数
 
 // 路由判断
 module.exports= async function(req,res,filePath){
@@ -14,8 +22,14 @@ module.exports= async function(req,res,filePath){
     	}else if(stats.isDirectory()){
     		const files = await readdir(filePath);
     		res.statusCode = 200;
-    		res.setHeader('Content-Type', 'text/plain');
-    		res.end(files.join(','));
+    		res.setHeader('Content-Type', 'text/html');
+    		const dir = path.relative(conf.root,filePath);//文件相对启动文件的相对路径
+    		const data = {
+    			title:path.basename(filePath),
+    			dir:dir ? `/${dir}` : '',
+    			files
+    		};
+    		res.end(render(data));//渲染模板
     	}
     }catch(ex){
 		res.statusCode = 404;
