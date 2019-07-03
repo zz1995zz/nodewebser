@@ -7,6 +7,7 @@ const artTemplate = require('art-template');//模板引擎
 const conf = require('../config/defaultConfig');//参数配置文件
 const mime = require('./mime');
 const compress = require('./compress');
+const range = require('./range');
 
 // 编译模板  注意：服务端只支持标准语法！！！
 const tplPath = path.join(__dirname,'../template/dir.tpl');//模板路径
@@ -18,12 +19,23 @@ module.exports= async function(req,res,filePath){
 	try{
 		const stats = await stat(filePath);
         if(stats.isFile()){
-        	res.statusCode = 200;
         	const mimeType = mime(filePath);
         	res.setHeader('Content-Type', mimeType);
-            //2.压缩文件
-    		let rs = fs.createReadStream(filePath);// stream数据流读取数据，不用readFile
-    	    if(filePath.match(conf.compress)){
+            
+            // 3.范围请求
+            let rs;
+            const {code,start,end} = range(stats.size,req,res);
+            if(code==200){
+                 res.statusCode = 200;
+                 rs = fs.createReadStream(filePath);// stream数据流读取数据，不用readFile
+            }else {
+                res.statusCode = 206;
+                 rs = fs.createReadStream(filePath,{start,end});
+            }
+           
+    		
+    	    //2.压缩文件
+            if(filePath.match(conf.compress)){
                 rs = compress(rs,req,res);
             }
             rs.pipe(res);
