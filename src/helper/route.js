@@ -8,6 +8,7 @@ const conf = require('../config/defaultConfig');//参数配置文件
 const mime = require('./mime');
 const compress = require('./compress');
 const range = require('./range');
+const isFresh = require('./cache');
 
 // 编译模板  注意：服务端只支持标准语法！！！
 const tplPath = path.join(__dirname,'../template/dir.tpl');//模板路径
@@ -22,6 +23,14 @@ module.exports= async function(req,res,filePath){
         	const mimeType = mime(filePath);
         	res.setHeader('Content-Type', mimeType);
             
+            //4.使用缓存
+
+            if(isFresh(stats,req,res)){
+                res.statusCode = 304;
+                res.end();
+                return;
+            }
+
             // 3.范围请求
             let rs;
             const {code,start,end} = range(stats.size,req,res);
