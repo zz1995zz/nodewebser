@@ -6,6 +6,7 @@ const readdir = promisify(fs.readdir);
 const artTemplate = require('art-template');//模板引擎
 const conf = require('../config/defaultConfig');//参数配置文件
 const mime = require('./mime');
+const compress = require('./compress');
 
 // 编译模板  注意：服务端只支持标准语法！！！
 const tplPath = path.join(__dirname,'../template/dir.tpl');//模板路径
@@ -20,8 +21,13 @@ module.exports= async function(req,res,filePath){
         	res.statusCode = 200;
         	const mimeType = mime(filePath);
         	res.setHeader('Content-Type', mimeType);
-    		fs.createReadStream(filePath).pipe(res);// stream数据流读取数据，不用readFile
-    	}else if(stats.isDirectory()){
+            //2.压缩文件
+    		let rs = fs.createReadStream(filePath);// stream数据流读取数据，不用readFile
+    	    if(filePath.match(conf.compress)){
+                rs = compress(rs,req,res);
+            }
+            rs.pipe(res);
+        }else if(stats.isDirectory()){
     		const files = await readdir(filePath);
     		res.statusCode = 200;
     		res.setHeader('Content-Type', 'text/html');
@@ -41,6 +47,6 @@ module.exports= async function(req,res,filePath){
     }catch(ex){
 		res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');// 响应头中设置文本类型
-        res.end(`${filePath} is not a file or directory n ${ex.toString()}`);
+        res.end(`${filePath} is not a file or directory \n ${ex.toString()}`);
 	}
 }
