@@ -1,24 +1,24 @@
 {
-  "name": "nodeWebSer",
+  "name": "nodewebser",
   "version": "0.1.0",
   "description": "一个nodejs搭建的静态资源服务器",
   "main": "src/app.js",
   "bin": { 
-     "nodeWebSer":"bin/nodeWebSer"
+     "nodewebser":"bin/nodewebser"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zz1995zz/node-static-web-server.git"
+    "url": "git+https://github.com/zz1995zz/nodewebser.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/zz1995zz/nodeWebSer/issues"
+    "url": "https://github.com/zz1995zz/nodewebser/issues"
   },
-  "homepage": "https://github.com/zz1995zz/nodeWebSer#readme",
+  "homepage": "https://github.com/zz1995zz/nodewebser#readme",
   "devDependencies": {
     "eslint": "^6.0.1"
   },
