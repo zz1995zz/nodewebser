@@ -1,4 +1,4 @@
-# node-static-web-server
+# nodeWebSer
 一个nodejs搭建的静态资源服务器
 
 ## 安装
