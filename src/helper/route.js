@@ -4,7 +4,7 @@ const promisify = require('util').promisify;//promise异步
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
 const artTemplate = require('art-template');//模板引擎
-const conf = require('../config/defaultConfig');//参数配置文件
+// const conf = require('../config/defaultConfig');//参数配置文件
 const mime = require('./mime');
 const compress = require('./compress');
 const range = require('./range');
@@ -16,15 +16,14 @@ const source = fs.readFileSync(tplPath);//用同步是因为只有模板读取�
 const render = artTemplate.compile(source.toString());//编译模板返回一个渲染函数
 
 // 路由判断
-module.exports= async function(req,res,filePath){
+module.exports= async function(req,res,filePath,conf){//变成cli工具后，用户自己配置参数，所以不能用固定的conf
 	try{
 		const stats = await stat(filePath);
         if(stats.isFile()){
         	const mimeType = mime(filePath);
         	res.setHeader('Content-Type', mimeType);
-            
-            //4.使用缓存
 
+            //4.使用缓存
             if(isFresh(stats,req,res)){
                 res.statusCode = 304;
                 res.end();
