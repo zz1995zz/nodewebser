@@ -3,6 +3,7 @@ const chalk = require('chalk');//设置命令行字体样式(node启动有效，
 const path = require('path');
 const route = require('./helper/route');
 const conf = require('./config/defaultConfig');//参数配置文件
+const openUrl = require('./helper/openUrl');
 
 class Server {
 	constructor(config) {
@@ -18,6 +19,7 @@ class Server {
 		server.listen(this.conf.port, this.conf.hostname, () => {
 			const addr = `http://${this.conf.hostname}:${this.conf.port}/`;
    			console.info(`Server running at ${chalk.green(addr)}`);
+   			openUrl(addr);//自动打开页面
 		});
 	}
 }
